@@ -1,18 +1,18 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+
 import '../consts/dataModel.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart" show toBeginningOfSentenceCase;
 
 
-class ListProvider extends ChangeNotifier{
+class ListProvider with ChangeNotifier{
 
-  List<ListNames> listNames = [];
+  final List<ListNames> _listNames = [];
+  List<ListNames> get listNames => _listNames;
 
   void addingList(String title, int index){
-
-
     listIcons[index].iconNumber = index;
-    listNames.add(
+    _listNames.add(
       ListNames(
           listName: toBeginningOfSentenceCase(title).toString(),
           iconDetails: listIcons[index],
@@ -24,58 +24,30 @@ class ListProvider extends ChangeNotifier{
           pinned: false
       ),
     );
-
     notifyListeners();
-
   }
 
-/*
-  void addingList(String title, int index){
-    print("ADD INDEX $index");
-    setState(() => listIcons[index].iconNumber = index);
-    setState(() {
-      listNames.add(
-        ListNames(
-            listName: toBeginningOfSentenceCase(title).toString(),
-            iconDetails: listIcons[index],
-            products: [],
-            dateCreated: DateTime.now(),
-            dateModified: DateTime.now(),
-            sharedWith: [],
-            listComplete: false,
-            pinned: false
-        ),
-      );
-    });
-
-  }
   void deleteList(int deleteIndex){
 
     ListNames temp = listNames[deleteIndex];
-    setState(()=> listNames.removeAt(deleteIndex));
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          "You deleted ${temp.listName}",
-        ),
-        action: SnackBarAction(
-          label: "Undo",
-          onPressed: () => setState(()=> listNames.insert(deleteIndex, temp)),
-        ))
-    );
-
+    listNames.removeAt(deleteIndex);
+    notifyListeners();
   }
-  void editList(int editIndex){
-    setState(()=> editing = true);
-    tobeEdited = editIndex;
-    setState(() {
-      nameController.text = listNames[editIndex].listName;
-      selectedIcon = listNames[editIndex].iconDetails.iconNumber;
-      nameController.selection = TextSelection.fromPosition(TextPosition(offset: nameController.text.length));
-    });
 
-    SystemChannels.textInput.invokeMapMethod("TextInput.show");
-  }
+  // void editList(int editIndex){
+  //   setState(()=> editing = true);
+  //   tobeEdited = editIndex;
+  //   setState(() {
+  //     nameController.text = listNames[editIndex].listName;
+  //     selectedIcon = listNames[editIndex].iconDetails.iconNumber;
+  //     nameController.selection = TextSelection.fromPosition(TextPosition(offset: nameController.text.length));
+  //   });
+  //
+  //   SystemChannels.textInput.invokeMapMethod("TextInput.show");
+  // }
+
+/*
+
   void markList(int doneIndex){
 
     if(listNames[doneIndex].listComplete){
