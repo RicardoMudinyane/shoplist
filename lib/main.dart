@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shoplist/providers/list_name_model.dart';
-import 'package:shoplist/home.dart';
+import 'package:shoplist/screens/list/list_home.dart';
 
 void main() {
   runApp(

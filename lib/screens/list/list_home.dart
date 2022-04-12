@@ -7,7 +7,7 @@ import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 import 'package:shoplist/consts/dataModel.dart';
 import 'package:shoplist/screens/list/choose_icons.dart';
 import 'package:shoplist/screens/list/list_names.dart';
-import 'providers/list_name_model.dart';
+import '../../providers/list_name_model.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
     double width = MediaQuery.of(context).size.width;
 
     return ChangeNotifierProvider(
-      create: (context)=> ListProvider(),
+      create: (_)=> ListProvider(),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -63,10 +63,14 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
 
-            // List names
-            const MyLists(),
+            //List names
+            Consumer<ListProvider>(
+                builder: (context, lists,_){
+                  return  MyLists(context.watch<ListProvider>().listNames);
+                }
+            ),
 
-            // Text field
+            //Text field
             Visibility(
               visible: keyboardIsOpen || chooseIcon,
               child: Center(
@@ -156,6 +160,8 @@ class _HomeState extends State<Home> {
               ),
             ),
 
+
+            //Choose Icons
             Container(
               alignment: Alignment.center,
               height: 10.0,
@@ -171,9 +177,11 @@ class _HomeState extends State<Home> {
             hoverColor: Colors.white,
             backgroundColor: mainColor,
             onPressed: (){
-              setState(()=> editing = false);
-              SystemChannels.textInput.invokeMapMethod("TextInput.show");
-              print("Keyboard Width: $keyboardWidth");
+
+              Provider.of<ListProvider>(context,listen: false).addingList("This is test", selectedIcon);
+              // setState(()=> editing = false);
+              // SystemChannels.textInput.invokeMapMethod("TextInput.show");
+              // print("Keyboard Width: $keyboardWidth");
             },
             child: const Icon(
               Icons.add,
