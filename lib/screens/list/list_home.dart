@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shoplist/const.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
-import '../../consts/dataModel.dart';
+import 'package:shoplist/data/routes.dart';
+import 'package:shoplist/screens/list/products.dart';
+import '../../data/dataModel.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -113,7 +115,14 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       child: ListTile(
-                        onLongPress: ()=> null,
+                        onLongPress: ()=> pinList(i),
+                        onTap: (){
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Products(
+                              listNames[i]
+                            )),
+                          );
+                        },
                         leading: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Container(
@@ -220,6 +229,9 @@ class _HomeState extends State<Home> {
                         listNames[tobeEdited].iconDetails = listIcons[selectedIcon];
                       });
                       defaultData();
+                    }
+                    else if(nameController.text.isEmpty){
+                      return ;
                     }
                     else{
                       // TODO on adding
@@ -385,9 +397,7 @@ class _HomeState extends State<Home> {
           hoverColor: Colors.white,
           backgroundColor: mainColor,
           onPressed: (){
-            setState(()=> editing = false);
             SystemChannels.textInput.invokeMapMethod("TextInput.show");
-            print("Keyboard Width: $keyboardWidth");
           },
           child: const Icon(
             Icons.add,
@@ -473,6 +483,7 @@ class _HomeState extends State<Home> {
     setState(()  {
       nameController.clear();
       selectedIcon = 1;
+      editing = false;
     });
   }
   void snackMessage(String message){

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shoplist/const.dart';
 
 class ListIcons {
 
@@ -22,7 +23,7 @@ class ListNames {
   DateTime dateCreated;
   DateTime dateModified;
   List<String> sharedWith;
-  List<String> products;
+  List<Items> products;
   bool listComplete;
   bool pinned;
 
@@ -36,6 +37,22 @@ class ListNames {
     required this.listComplete,
     required this.pinned
   });
+}
+
+class Items{
+
+  String itemName;
+  bool itemChecked;
+  IconData itemIcon;
+  Color itemColor;
+
+  Items({
+   required this.itemName,
+   required this.itemChecked,
+   this.itemIcon = Icons.fastfood_rounded,
+   this.itemColor = secColor,
+  });
+
 }
 
 

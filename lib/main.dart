@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shoplist/providers/list_name_model.dart';
 import 'package:shoplist/screens/list/list_home.dart';
+import 'package:shoplist/screens/list/products.dart';
+import 'data/routes.dart';
 
 void main() {
-  runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_)=> ListProvider()),
-        ],
-        child: const MyApp(),
-      )
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -26,6 +20,25 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: const Home(),
+      /*
+      onGenerateRoute: (pages) {
+        late Widget page;
+        if (pages.name == routeList) {
+          page = const Home();
+        }
+        else if (pages.name == routeItems) {
+          page = const Products(pages.arguments);
+        }
+        else {
+          throw Exception('Unknown route: ${pages.name}');
+        }
+        return MaterialPageRoute<dynamic>(
+          builder: (context) {
+            return page;
+          },
+          settings: pages,
+        );
+      }, */
     );
   }
 }

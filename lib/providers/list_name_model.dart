@@ -1,8 +1,7 @@
 import 'package:flutter/services.dart';
-
-import '../consts/dataModel.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart" show toBeginningOfSentenceCase;
+import '../data/dataModel.dart';
 
 
 class ListProvider with ChangeNotifier{
