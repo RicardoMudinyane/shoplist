@@ -176,15 +176,16 @@ class _HomeState extends State<Home> {
                         ),
                         title: Text(
                           listNames[i].listName,
-                          style: listTitle.copyWith(
-                              decoration: listNames[i].listComplete
-                                  ? TextDecoration.lineThrough : TextDecoration.none,
-                              color: listNames[i].listComplete
-                                  ? Colors.black38 : secColor
-                          ),
+                          style: listNames[i].listComplete ?
+                          listTitle.copyWith(
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.black38
+                          ) : listTitle,
                         ),
                         subtitle: Text(
-                          "${listNames[i].products.length} Products",
+                          listNames[i].products.length == 1
+                              ? "${listNames[i].products.length} Product"
+                              :"${listNames[i].products.length}  Products",
                           style: listSubtitle,
                         ),
                         trailing: IconButton(

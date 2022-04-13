@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shoplist/const.dart';
 import '../../data/dataModel.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
@@ -13,6 +16,8 @@ class Products extends StatefulWidget {
 
 class _ProductsState extends State<Products> {
 
+  String sharedData = "";
+  late StreamSubscription _intentData;
   late ListNames listDetails;
   final TextEditingController itemController = TextEditingController();
 
@@ -20,13 +25,15 @@ class _ProductsState extends State<Products> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
+
     listDetails = widget.listDetails;
+    super.initState();
   }
 
   @override
   void dispose(){
     itemController.dispose();
+    // _intentData.cancel();
     super.dispose();
   }
 
@@ -55,6 +62,7 @@ class _ProductsState extends State<Products> {
       body: Column(
         children: [
 
+          // List of items
           Expanded(
             child: ListView.builder(
               itemCount: listDetails.products.length,
@@ -65,19 +73,26 @@ class _ProductsState extends State<Products> {
                     ),
                     key: UniqueKey(),
                     child: ListTile(
-                        leading: Checkbox(
+                      onTap: () => checkItem(i,!listDetails.products[i].itemChecked),
+                      leading: Checkbox(
                           checkColor: Colors.white,
                           activeColor: mainColor,
                           value: listDetails.products[i].itemChecked,
                           onChanged: (bool? value) {
                             checkItem(i,value!);
                           },
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
                         ),
-                        title: Text(
+                      title: Text(
                           listDetails.products[i].itemName,
-                          style: listTitle,
+                          style: listDetails.products[i].itemChecked ?
+                          listTitle.copyWith(
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.black38
+                          ) : listTitle,
                         ),
-                      ),
+                    ),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) {
                       deleteItem(i);
@@ -86,6 +101,19 @@ class _ProductsState extends State<Products> {
             }),
           ),
 
+          // Container(
+          //   width: width,
+          //   height: 120,
+          //   color: Colors.grey,
+          //   padding: EdgeInsets.all(24.0),
+          //   alignment: Alignment.topLeft,
+          //   child: Text(
+          //     "Shared text \n$sharedData",
+          //     style: listTitle,
+          //   ),
+          // ),
+
+          // Textfield
           SizedBox(
             width: width*.95,
             child: TextField(
@@ -102,7 +130,14 @@ class _ProductsState extends State<Products> {
         hoverColor: Colors.white,
         backgroundColor: mainColor,
         onPressed: (){
-          addItems(itemController.text);
+
+          if(itemController.text.isEmpty){
+            importFromApp();
+            return;
+          }
+          else{
+            addItems(itemController.text);
+          }
         },
         child: const Icon(
           Icons.add,
@@ -121,8 +156,8 @@ class _ProductsState extends State<Products> {
             itemChecked: false,
           )
       );
+      itemController.clear();
     });
-    itemController.clear();
   }
   void checkItem(int checkIndex, bool checked){
     Items item = listDetails.products[checkIndex];
@@ -148,4 +183,17 @@ class _ProductsState extends State<Products> {
     });
   }
 
+  void importFromApp(){
+    _intentData = ReceiveSharingIntent.getTextStream().listen((String text) async {
+      List<String> importText = text.split("\n");
+      for (var singleLine in importText) {
+        addItems(singleLine);
+      }
+      await _intentData.cancel();
+    });
+  }
+
+
+
+  // TODO Add a method for updating the database...
 }
