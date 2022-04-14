@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shoplist/const.dart';
+import '../../animation_files.dart';
 import '../../data/dataModel.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
@@ -14,10 +14,11 @@ class Products extends StatefulWidget {
   State<Products> createState() => _ProductsState();
 }
 
-class _ProductsState extends State<Products> {
+class _ProductsState extends State<Products>  with SingleTickerProviderStateMixin {
 
-  String sharedData = "";
-  late StreamSubscription _intentData;
+  late AnimationController rippleControl;
+
+  bool addByVoice = false;
   late ListNames listDetails;
   final TextEditingController itemController = TextEditingController();
 
@@ -25,7 +26,9 @@ class _ProductsState extends State<Products> {
   @override
   void initState() {
     // TODO: implement initState
-
+    rippleControl =
+    AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))
+      ..repeat();
     listDetails = widget.listDetails;
     super.initState();
   }
@@ -33,7 +36,7 @@ class _ProductsState extends State<Products> {
   @override
   void dispose(){
     itemController.dispose();
-    // _intentData.cancel();
+    rippleControl.dispose();
     super.dispose();
   }
 
@@ -41,7 +44,7 @@ class _ProductsState extends State<Products> {
   Widget build(BuildContext context) {
 
     double width = MediaQuery.of(context).size.width;
-    // double height = MediaQuery.of(context).size.height;
+    double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,22 +62,27 @@ class _ProductsState extends State<Products> {
           ),
         ),
       ),
-      body: Column(
-        children: [
+      body: SizedBox(
+        height: height,
+        width: width,
+        child: Stack(
+          children: [
 
-          // List of items
-          Expanded(
-            child: ListView.builder(
-              itemCount: listDetails.products.length,
-                itemBuilder: (context, i){
-                  return Dismissible(
-                    background: Container(
-                      color: Colors.red,
-                    ),
-                    key: UniqueKey(),
-                    child: ListTile(
-                      onTap: () => checkItem(i,!listDetails.products[i].itemChecked),
-                      leading: Checkbox(
+            // List of items
+            Align(
+              alignment: Alignment.topCenter,
+              child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: listDetails.products.length,
+                  itemBuilder: (context, i){
+                    return Dismissible(
+                      background: Container(
+                        color: Colors.red,
+                      ),
+                      key: UniqueKey(),
+                      child: ListTile(
+                        onTap: () => checkItem(i,!listDetails.products[i].itemChecked),
+                        leading: Checkbox(
                           checkColor: Colors.white,
                           activeColor: mainColor,
                           value: listDetails.products[i].itemChecked,
@@ -84,7 +92,7 @@ class _ProductsState extends State<Products> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4)),
                         ),
-                      title: Text(
+                        title: Text(
                           listDetails.products[i].itemName,
                           style: listDetails.products[i].itemChecked ?
                           listTitle.copyWith(
@@ -92,29 +100,16 @@ class _ProductsState extends State<Products> {
                               color: Colors.black38
                           ) : listTitle,
                         ),
-                    ),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (_) {
-                      deleteItem(i);
-                    },
-                  );
-            }),
-          ),
+                      ),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (_) {
+                        deleteItem(i);
+                      },
+                    );
+                  }),
+            ),
 
-          // Container(
-          //   width: width,
-          //   height: 120,
-          //   color: Colors.grey,
-          //   padding: EdgeInsets.all(24.0),
-          //   alignment: Alignment.topLeft,
-          //   child: Text(
-          //     "Shared text \n$sharedData",
-          //     style: listTitle,
-          //   ),
-          // ),
-
-          // Textfield
-          SizedBox(
+            /* SizedBox(
             width: width*.95,
             child: TextField(
               controller: itemController,
@@ -122,29 +117,59 @@ class _ProductsState extends State<Products> {
                   hintText: "Enter Item Name"
               ),
             ),
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        elevation: 5,
-        hoverColor: Colors.white,
-        backgroundColor: mainColor,
-        onPressed: (){
+          ) */
 
-          if(itemController.text.isEmpty){
-            importFromApp();
-            return;
-          }
-          else{
-            addItems(itemController.text);
-          }
-        },
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
+             Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: (){
+
+                    if(itemController.text.isEmpty){
+                      importFromApp();
+                      return;
+                    }
+                    else{
+                      addItems(itemController.text);
+                    }
+                  },
+                  onLongPress: ()=> voiceButton(),
+                  child: Material(
+                    elevation: 8.0,
+                    shape: const CircleBorder(),
+                    child: Container(
+                        width: width*.14,
+                        height: width*.14,
+                        decoration: const BoxDecoration(
+                            color: mainColor,
+                            shape: BoxShape.circle
+                        ),
+                        child: addByVoice ?
+                        IconButton(
+                          onPressed: (){
+                            setState(()=> addByVoice = false);
+                          },
+                          icon: const Icon(
+                            Icons.stop,
+                            color: Colors.white,
+                          ),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                        ) :
+                        const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        )
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -182,15 +207,29 @@ class _ProductsState extends State<Products> {
       listDetails.products.removeAt(deleteIndex);
     });
   }
+  void importFromApp() async {
 
-  void importFromApp(){
-    _intentData = ReceiveSharingIntent.getTextStream().listen((String text) async {
-      List<String> importText = text.split("\n");
+
+
+    List<String> importText;
+    late StreamSubscription _intentData;
+
+    _intentData = ReceiveSharingIntent.getTextStream().listen((String text) {
+      importText = text.split("\n");
       for (var singleLine in importText) {
         addItems(singleLine);
       }
-      await _intentData.cancel();
+      },
+        cancelOnError: false,
+        onDone: (){_intentData.cancel();
     });
+
+
+  }
+
+  void voiceButton(){
+    setState(()=> addByVoice = true);
+    rippleControl.forward();
   }
 
 
