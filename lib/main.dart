@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shoplist/screens/list/list_home.dart';
 import 'package:shoplist/screens/list/products.dart';
 import 'package:shoplist/tempFile.dart';
+import 'const.dart';
 import 'data/routes.dart';
 
 void main() {
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        backgroundColor: Colors.white,
       ),
       debugShowCheckedModeBanner: false,
       home: const Home(),

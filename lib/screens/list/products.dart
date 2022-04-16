@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shoplist/const.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../../data/dataModel.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
+
+import 'list_empty.dart';
 
 class Products extends StatefulWidget {
   final ListNames listDetails;
@@ -23,6 +27,7 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
   String saidWords = '';
 
   bool addByVoice = false;
+  bool keyboardIsOpen = false;
   late ListNames listDetails;
   final TextEditingController itemController = TextEditingController();
 
@@ -47,9 +52,11 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
@@ -64,12 +71,16 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
           ),
         ),
       ),
-      body: SizedBox(
+      body: Container(
         height: height,
         width: width,
+        color: Colors.white,
         child: Stack(
+          alignment: Alignment.bottomCenter,
           children: [
 
+            listDetails.products.isEmpty ?
+            productEmpty(height,width):
             Align(
               alignment: Alignment.topCenter,
               child: ListView.builder(
@@ -110,74 +121,112 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                   }),
             ),
 
-            // List of items
-            /*
-            SizedBox(
-            width: width*.95,
-            child: TextField(
-              controller: itemController,
-              decoration: const InputDecoration(
-                  hintText: "Enter Item Name"
-              ),
-            ),
-          ) */
-
-             Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 0.0),
-                child: AvatarGlow(
-                  glowColor: Colors.blue,
-                  endRadius: 50.0,
-                  animate: addByVoice,
-                  repeat: true,
-                  showTwoGlows: true,
-                  duration: const Duration(milliseconds: 2000),
-                  repeatPauseDuration: const Duration(milliseconds: 100),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: (){
-                      if(itemController.text.isEmpty){
-                        // importFromApp();
-                        return;
-                      }
-                      else{
-                        addItems(itemController.text);
-                      }
-                    },
-                    onLongPress: ()=> voiceButton(),
-                    child: Material(
-                      elevation: 8.0,
-                      shape: const CircleBorder(),
-                      child: Container(
-                          width: width*.14,
-                          height: width*.14,
-                          decoration: const BoxDecoration(
-                              color: mainColor,
-                              shape: BoxShape.circle
-                          ),
-                          child: addByVoice ?
-                          IconButton(
-                            onPressed: (){
-                              _stopListening();
-                            },
-                            icon: const Icon(
-                              Icons.stop,
-                              color: Colors.white,
-                            ),
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                          ) :
-                          const Icon(
-                            Icons.add,
-                            color: Colors.white,
+            Visibility(
+              visible: keyboardIsOpen,
+              child: Positioned(
+                bottom: MediaQuery.of(context).viewInsets.bottom+2,
+                child: Center(
+                  child: Container(
+                    width: width*.96,
+                    height: 55,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black54.withOpacity(.15),
+                              blurRadius: 15.0,
+                              spreadRadius: 0.0
                           )
+                        ]
+                    ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextField(
+                      style: textField,
+                      autofocus: true,
+                      onSubmitted: (value) {
+                        if(itemController.text.isEmpty){
+                          return ;
+                        }
+                        else{
+                          // TODO on adding
+                          addItems(itemController.text);
+                        }
+                      },
+                      controller: itemController,
+                      enableSuggestions: true,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        hintText: "Type an item name",
+                        hintStyle: textFieldHint,
                       ),
                     ),
                   ),
                 ),
-              ),
-            )
+              )
+            ),
+
+             Visibility(
+               visible: !keyboardIsOpen,
+               child: Align(
+                 alignment: Alignment.bottomCenter,
+                 child: Padding(
+                   padding: const EdgeInsets.only(bottom: 0.0),
+                   child: AvatarGlow(
+                     glowColor: Colors.blue,
+                     endRadius: 50.0,
+                     animate: addByVoice,
+                     repeat: true,
+                     showTwoGlows: true,
+                     duration: const Duration(milliseconds: 2000),
+                     repeatPauseDuration: const Duration(milliseconds: 100),
+                     child: InkWell(
+                       customBorder: const CircleBorder(),
+                       onTap: (){
+                         SystemChannels.textInput.invokeMapMethod("TextInput.show");
+                         // if(itemController.text.isEmpty){
+                         //   // importFromApp();
+                         //   return;
+                         // }
+                         // else{
+                         //   addItems(itemController.text);
+                         // }
+                       },
+                       onLongPress: ()=> voiceButton(),
+                       child: Material(
+                         elevation: 8.0,
+                         shape: const CircleBorder(),
+                         child: Container(
+                             width: width*.14,
+                             height: width*.14,
+                             decoration: const BoxDecoration(
+                                 color: mainColor,
+                                 shape: BoxShape.circle
+                             ),
+                             child: addByVoice ?
+                             IconButton(
+                               onPressed: (){
+                                 _stopListening();
+                               },
+                               icon: const Icon(
+                                 Icons.stop,
+                                 color: Colors.white,
+                               ),
+                               splashColor: Colors.transparent,
+                               highlightColor: Colors.transparent,
+                             ) :
+                             const Icon(
+                               Icons.add,
+                               color: Colors.white,
+                             )
+                         ),
+                       ),
+                     ),
+                   ),
+                 ),
+               ),
+             )
           ],
         ),
       ),
@@ -265,6 +314,10 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
       }
     });
 
+    Timer.periodic(const Duration(seconds: 4), (timer) {
+      // print("After: ${result.recognizedWords}");
+    });
+
   }
   void snackMessage(String message){
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -273,6 +326,113 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
           style: snackStyle,
           textAlign: TextAlign.center,
         ))
+    );
+  }
+
+  Widget productEmpty(double height, double width){
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      height: height,
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Container(),
+          Text.rich(
+            TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                    text: "There aren't any products added yet. You can also",
+                    style: richText
+                ),
+                TextSpan(
+                    text: "\n Receive Share",
+                    style: richText.copyWith(
+                        color: mainColor
+                    )
+                ),
+                TextSpan(
+                    text: " or",
+                    style: richText
+                ),
+                TextSpan(
+                    text: " Scan",
+                    style: richText.copyWith(
+                        color: mainColor
+                    )
+                ),
+                TextSpan(
+                    text: " \nfrom existing list elsewhere",
+                    style: richText
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: width*.4,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+
+                InkWell(
+                  onTap:(){importFromApp();},
+                  child: Container(
+                      height: width*.4,
+                      width: width*.35,
+                      decoration: BoxDecoration(
+                        color: secColor.withOpacity(.07),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/share.svg',
+                            width : width*.2,
+                          ),
+                          Text(
+                            "Receive Share",
+                            style: richText,
+                          )
+                        ],
+                      )
+                  ),
+                ),
+
+                InkWell(
+                  onTap: (){},
+                  child: Container(
+                      height: width*.4,
+                      width: width*.35,
+                      decoration: BoxDecoration(
+                        color: secColor.withOpacity(.07),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/scan.svg',
+                            width: width*.2,
+                          ),
+                          Text(
+                            "Scan List",
+                            style: richText,
+                          )
+                        ],
+                      )
+                  ),
+                )
+
+
+              ],
+            ),
+          ),
+          Container(),
+        ],
+      ),
     );
   }
   // TODO Add a method for updating the database...

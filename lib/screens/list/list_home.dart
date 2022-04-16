@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shoplist/const.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
-import 'package:shoplist/data/routes.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shoplist/screens/list/list_empty.dart';
 import 'package:shoplist/screens/list/products.dart';
 import '../../data/dataModel.dart';
 
@@ -41,9 +42,11 @@ class _HomeState extends State<Home> {
     keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom != 0;
 
     double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
@@ -57,259 +60,164 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+      body: SizedBox(
+        width: width,
+        height: height,
+        // alignment: Alignment.center,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
 
-          // List names
-          Expanded(
-              child: ListView.builder(
-                itemCount: listNames.length,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, i) {
-                  return Slidable(
-                      key: UniqueKey(),
+            // List names
+            listNames.isEmpty ?
+            const ListEmpty():
+            ListView.builder(
+              itemCount: listNames.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, i) {
+                return Slidable(
+                    key: UniqueKey(),
 
-                      startActionPane: ActionPane(
-                        motion: const DrawerMotion(),
-                        extentRatio: .2,
-                        dismissible: DismissiblePane(
-                            onDismissed: () => deleteList(i)
+                    startActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: .2,
+                      dismissible: DismissiblePane(
+                          onDismissed: () => deleteList(i)
+                      ),
+                      children:  [
+                        SlidableAction(
+                          onPressed: (context)=> deleteList(i),
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+
+                          icon: Icons.delete,
+                          autoClose: true,
+                          label: 'Delete',
                         ),
-                        children:  [
-                          SlidableAction(
-                            onPressed: (context)=> deleteList(i),
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-
-                            icon: Icons.delete,
-                            autoClose: true,
-                            label: 'Delete',
-                          ),
-                        ],
-                      ),
-                      endActionPane:  ActionPane(
-                        motion: const DrawerMotion(),
-                        extentRatio: .4,
-                        children: [
-                          SlidableAction(
-                            onPressed: (context)=> editList(i),
-                            autoClose: true,
-                            backgroundColor: mainColor,
-                            foregroundColor: Colors.white,
-                            icon: Icons.edit,
-                            label: 'Edit',
-                          ),
-                          SlidableAction(
-                            onPressed: (context)=> markList(i),
-                            autoClose: true,
-                            backgroundColor: listNames[i].listComplete
-                                ? Colors.grey : Colors.green,
-                            foregroundColor: Colors.white,
-                            icon: listNames[i].listComplete
-                                ? Icons.clear_rounded : Icons.check,
-                            label: listNames[i].listComplete
-                                ? 'Unmark' : 'Done',
-                          ),
-                        ],
-                      ),
-                      child: ListTile(
-                        onLongPress: ()=> pinList(i),
-                        onTap: (){
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Products(
+                      ],
+                    ),
+                    endActionPane:  ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: .4,
+                      children: [
+                        SlidableAction(
+                          onPressed: (context)=> editList(i),
+                          autoClose: true,
+                          backgroundColor: mainColor,
+                          foregroundColor: Colors.white,
+                          icon: Icons.edit,
+                          label: 'Edit',
+                        ),
+                        SlidableAction(
+                          onPressed: (context)=> markList(i),
+                          autoClose: true,
+                          backgroundColor: listNames[i].listComplete
+                              ? Colors.grey : Colors.green,
+                          foregroundColor: Colors.white,
+                          icon: listNames[i].listComplete
+                              ? Icons.clear_rounded : Icons.check,
+                          label: listNames[i].listComplete
+                              ? 'Unmark' : 'Done',
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      onLongPress: ()=> pinList(i),
+                      onTap: (){
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Products(
                               listNames[i]
-                            )),
-                          );
-                        },
-                        leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              width: 60.0,
-                              height: 60.0,
-                              color: Colors.transparent,
-                              child: Stack(
-                                children: [
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Container(
-                                      width: 50.0,
-                                      height: 50.0,
-                                      decoration: BoxDecoration(
-                                        color: listNames[i].iconDetails.iconColor.withOpacity(.2),
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.black54.withOpacity(.12),
-                                              blurRadius: 4.0,
-                                              spreadRadius: 0.0
-                                          )
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: SizedBox(
-                                          width: width*.07,
-                                          height: width*.07,
-                                          child:  Image.asset(
-                                            listNames[i].iconDetails.iconPath,
-                                            fit: BoxFit.fitWidth,
-                                          ),
-
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    child:  Icon(
-                                      Icons.circle,
-                                      color: listNames[i].pinned ?
-                                      mainColor: Colors.transparent,
-                                      size: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                        ),
-                        title: Text(
-                          listNames[i].listName,
-                          style: listNames[i].listComplete ?
-                          listTitle.copyWith(
-                              decoration: TextDecoration.lineThrough,
-                              color: Colors.black38
-                          ) : listTitle,
-                        ),
-                        subtitle: Text(
-                          listNames[i].products.length == 1
-                              ? "${listNames[i].products.length} Product"
-                              :"${listNames[i].products.length}  Products",
-                          style: listSubtitle,
-                        ),
-                        trailing: IconButton(
-                          onPressed: (){},
-                          icon: const Icon(Icons.keyboard_arrow_right_rounded),
-                          iconSize: 20.0,
-                        ),
-                      )
-                  );
-                },
-              )
-          ),
-
-          // Text field
-          Visibility(
-            visible: keyboardIsOpen || chooseIcon,
-            child: Center(
-              child: Container(
-                width: width*.96,
-                height: 55,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black54.withOpacity(.15),
-                          blurRadius: 15.0,
-                          spreadRadius: 0.0
-                      )
-                    ]
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: TextField(
-                  style: textField,
-                  autofocus: true,
-                  onSubmitted: (value) {
-                    if(editing){
-                      // TODO on editing
-                      setState(() {
-                        listNames[tobeEdited].listName =
-                            toBeginningOfSentenceCase(nameController.text).toString();
-                        listNames[tobeEdited].iconDetails = listIcons[selectedIcon];
-                      });
-                      defaultData();
-                    }
-                    else if(nameController.text.isEmpty){
-                      return ;
-                    }
-                    else{
-                      // TODO on adding
-                      addingList(nameController.text, selectedIcon);
-                      defaultData();
-                    }
-                  },
-                  controller: nameController,
-                  enabled: chooseIcon ? false : true,
-                  enableSuggestions: true,
-                  decoration: InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      hintText: "Type a list name",
-                      hintStyle: textFieldHint,
-                      suffixIcon: InkWell(
-                        onTap: (){
-                          keyboardWidth = MediaQuery.of(context).viewInsets.bottom;
-
-                          SystemChannels.textInput.invokeMapMethod("TextInput.hide").then((_) {
-                            Future.delayed(const Duration(milliseconds: 100), () {
-                              setState(()=> chooseIcon = true);
-                            });
-                          });
-
-                        },
-                        child: Container(
-                            height: 50,
-                            width: width * 0.28,
-                            decoration: BoxDecoration(
-                              color: mainColor,
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          )),
+                        );
+                      },
+                      leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            width: 60.0,
+                            height: 60.0,
+                            color: Colors.transparent,
+                            child: Stack(
                               children: [
-                                Text(
-                                  "Choose Icon",
-                                  style: suffixIcon,
-                                ),
-                                const RotatedBox(
-                                  quarterTurns: 1,
-                                  child: Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: Colors.white,
-                                    size: 20.0,
-                                  ),
-                                )
-                              ],
-                            )
-                        ),
-                      )
-                  ),
-                ),
-              ),
-            ),
-          ),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    width: 50.0,
+                                    height: 50.0,
+                                    decoration: BoxDecoration(
+                                      color: listNames[i].iconDetails.iconColor.withOpacity(.2),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Colors.black54.withOpacity(.12),
+                                            blurRadius: 4.0,
+                                            spreadRadius: 0.0
+                                        )
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: width*.07,
+                                        height: width*.07,
+                                        child:  Image.asset(
+                                          listNames[i].iconDetails.iconPath,
+                                          fit: BoxFit.fitWidth,
+                                        ),
 
-          Container(
-            alignment: Alignment.center,
-            height: 10.0,
-            color: Colors.transparent,
-          ),
-          Visibility(
-              visible: chooseIcon,
-              child: Expanded(
-                child: Container(
-                    width: width,
-                    height: keyboardWidth,
-                    padding: const EdgeInsets.all(8.0),
-                    decoration:  BoxDecoration(
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 0,
+                                  left: 0,
+                                  child:  Icon(
+                                    Icons.circle,
+                                    color: listNames[i].pinned ?
+                                    mainColor: Colors.transparent,
+                                    size: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                      ),
+                      title: Text(
+                        listNames[i].listName,
+                        style: listNames[i].listComplete ?
+                        listTitle.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.black38
+                        ) : listTitle,
+                      ),
+                      subtitle: Text(
+                        listNames[i].products.length == 1
+                            ? "${listNames[i].products.length} Product"
+                            :"${listNames[i].products.length}  Products",
+                        style: listSubtitle,
+                      ),
+                      trailing: IconButton(
+                        onPressed: (){},
+                        icon: const Icon(Icons.keyboard_arrow_right_rounded),
+                        iconSize: 20.0,
+                      ),
+                    )
+                );
+              },
+            ),
+
+
+            // Text field
+            Visibility(
+              visible:  chooseIcon || keyboardIsOpen,
+              child: Positioned(
+                bottom: MediaQuery.of(context).viewInsets.bottom+2,
+                child: Center(
+                  child: Container(
+                    width: width*.96,
+                    height: 55,
+                    decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(10.0),
-                            topLeft: Radius.circular(10.0)
-                        ),
+                        borderRadius: BorderRadius.circular(10.0),
                         boxShadow: [
                           BoxShadow(
                               color: Colors.black54.withOpacity(.15),
@@ -318,77 +226,175 @@ class _HomeState extends State<Home> {
                           )
                         ]
                     ),
-                    child: Stack(
-                      children: [
-                        GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 25,
-                              crossAxisSpacing: 25,
-                            ),
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: listIcons.length,
-                            shrinkWrap: true,
-                            itemBuilder: (BuildContext context, int index) {
-                              return InkWell(
-                                onTap: (){
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextField(
+                      style: textField,
+                      autofocus: true,
+                      onSubmitted: (value) {
+                        if(editing){
+                          // TODO on editing
+                          setState(() {
+                            listNames[tobeEdited].listName =
+                                toBeginningOfSentenceCase(nameController.text).toString();
+                            listNames[tobeEdited].iconDetails = listIcons[selectedIcon];
+                          });
+                          defaultData();
+                        }
+                        else if(nameController.text.isEmpty){
+                          return ;
+                        }
+                        else{
+                          // TODO on adding
+                          addingList(nameController.text, selectedIcon);
+                          defaultData();
+                        }
+                      },
+                      controller: nameController,
+                      enabled: chooseIcon ? false : true,
+                      enableSuggestions: true,
+                      decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                          hintText: "Type a list name",
+                          hintStyle: textFieldHint,
+                          suffixIcon: InkWell(
+                            onTap: (){
+                              keyboardWidth = MediaQuery.of(context).viewInsets.bottom;
 
-                                  setState(() {
-                                    chooseIcon = false;
-                                    selectedIcon = index;
-                                  });
-                                  SystemChannels.textInput.invokeMapMethod("TextInput.show");
+                              SystemChannels.textInput.invokeMapMethod("TextInput.hide").then((_) {
+                                Future.delayed(const Duration(milliseconds: 100), () {
+                                  setState(()=> chooseIcon = true);
+                                });
+                              });
 
-                                },
-                                child: Container(
-                                    width: width*.2,
-                                    height: width*.2,
-                                    decoration: BoxDecoration(
-                                        color: listIcons[index].iconColor.withOpacity(.2),
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.black54.withOpacity(.15),
-                                              blurRadius: 5.0,
-                                              spreadRadius: 0.0
-                                          )
-                                        ]
+                            },
+                            child: Container(
+                                height: 50,
+                                width: width * 0.28,
+                                decoration: BoxDecoration(
+                                  color: mainColor,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      "Choose Icon",
+                                      style: suffixIcon,
                                     ),
-                                    child: Center(
-                                      child: SizedBox(
-                                        width: width*.08,
-                                        height: width*.08,
-                                        child: Image.asset(
-                                          listIcons[index].iconPath,
-                                          fit: BoxFit.fitWidth,
-                                        ),
+                                    const RotatedBox(
+                                      quarterTurns: 1,
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        color: Colors.white,
+                                        size: 20.0,
                                       ),
                                     )
-                                ),
-                              );
-                            }
-                        ),
-                        Positioned(
-                          bottom: 10,
-                          right: 10,
-                          child: IconButton(
-                            onPressed: () {
-                              print("Show Keyboard");
-                              setState(()=> chooseIcon = false);
-                              SystemChannels.textInput.invokeMapMethod("TextInput.show");
-                            },
-                            icon: const Icon(Icons.keyboard_arrow_up_rounded),
-                            color: secColor,
-                            iconSize: 30,
-                          ),
-                        ),
-                      ],
-                    )
-
+                                  ],
+                                )
+                            ),
+                          )
+                      ),
+                    ),
+                  ),
                 ),
               )
-          )
-        ],
+            ),
+
+            Visibility(
+                visible: chooseIcon,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                      width: width,
+                      height: keyboardWidth,
+                      padding: const EdgeInsets.all(8.0),
+                      decoration:  BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(10.0),
+                              topLeft: Radius.circular(10.0)
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black54.withOpacity(.15),
+                                blurRadius: 15.0,
+                                spreadRadius: 0.0
+                            )
+                          ]
+                      ),
+                      child: Stack(
+                        children: [
+                          GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                mainAxisSpacing: 25,
+                                crossAxisSpacing: 25,
+                              ),
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: listIcons.length,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: (){
+
+                                    setState(() {
+                                      chooseIcon = false;
+                                      selectedIcon = index;
+                                    });
+                                    SystemChannels.textInput.invokeMapMethod("TextInput.show");
+
+                                  },
+                                  child: Container(
+                                      width: width*.2,
+                                      height: width*.2,
+                                      decoration: BoxDecoration(
+                                          color: listIcons[index].iconColor.withOpacity(.2),
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.black54.withOpacity(.15),
+                                                blurRadius: 5.0,
+                                                spreadRadius: 0.0
+                                            )
+                                          ]
+                                      ),
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: width*.08,
+                                          height: width*.08,
+                                          child: Image.asset(
+                                            listIcons[index].iconPath,
+                                            fit: BoxFit.fitWidth,
+                                          ),
+                                        ),
+                                      )
+                                  ),
+                                );
+                              }
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: IconButton(
+                              onPressed: () {
+                                setState(()=> chooseIcon = false);
+                                SystemChannels.textInput.invokeMapMethod("TextInput.show");
+                              },
+                              icon: const Icon(Icons.keyboard_arrow_up_rounded),
+                              color: secColor,
+                              iconSize: 30,
+                            ),
+                          ),
+                        ],
+                      )
+
+                  ),
+                )
+            )
+          ],
+        ),
       ),
       floatingActionButton: Visibility(
         visible: !keyboardIsOpen && !chooseIcon,

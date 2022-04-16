@@ -44,6 +44,11 @@ TextStyle snackStyle = GoogleFonts.archivo(
     fontWeight: FontWeight.w300,
     fontSize: 13
 );
+TextStyle richText = GoogleFonts.archivo(
+    color: secColor,
+    fontWeight: FontWeight.w800,
+    fontSize: 13
+);
 
 final BoxDecoration homeBox = BoxDecoration(
   borderRadius: BorderRadius.circular(30),

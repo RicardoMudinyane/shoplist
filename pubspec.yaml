@@ -33,12 +33,13 @@ dependencies:
 
   cupertino_icons: ^1.0.2
 
-  # Shopping List Dependencies
+  # List Dependencies
   flutter_reorderable_list: ^1.0.0
   receive_sharing_intent: ^1.4.5
   flutter_slidable: ^1.2.0
   speech_to_text: ^5.4.3
-#  flutter_tts: ^3.3.3
+  google_ml_kit: ^0.7.3
+  flutter_svg: ^1.0.3
   provider: ^6.0.2
 
   # Styling Dependencies
@@ -84,6 +85,9 @@ flutter:
     - assets/lists/11.png
     - assets/lists/diary.png
     - assets/lists/meat.png
+    - assets/emptylist.svg
+    - assets/share.svg
+    - assets/scan.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
