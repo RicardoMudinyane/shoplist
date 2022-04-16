@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 // const mainColor = Color(0xff178EEF);
 const mainColor = Color(0xff0170F2);
-const primaryColor = Color(0xff0170F2);
 const secColor = Color(0xff14181D);
 
 TextStyle appBar = GoogleFonts.archivo(
@@ -46,12 +45,10 @@ TextStyle snackStyle = GoogleFonts.archivo(
     fontSize: 13
 );
 
-
-
 final BoxDecoration homeBox = BoxDecoration(
   borderRadius: BorderRadius.circular(30),
 );
 OutlineInputBorder border = OutlineInputBorder(
     borderRadius: BorderRadius.circular(18.0),
-    borderSide:  const BorderSide(color: primaryColor,width: 2)
+    borderSide:  const BorderSide(color: mainColor,width: 2)
 );

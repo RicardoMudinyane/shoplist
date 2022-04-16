@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shoplist/const.dart';
-import '../../animation_files.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import '../../data/dataModel.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
@@ -16,30 +18,30 @@ class Products extends StatefulWidget {
 
 class _ProductsState extends State<Products>  with SingleTickerProviderStateMixin {
 
-  late AnimationController rippleControl;
+  SpeechToText speechText = SpeechToText();
+  bool speechEnabled = false;
+  String saidWords = '';
 
   bool addByVoice = false;
   late ListNames listDetails;
   final TextEditingController itemController = TextEditingController();
 
-
   @override
   void initState() {
-    // TODO: implement initState
-    rippleControl =
-    AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))
-      ..repeat();
     listDetails = widget.listDetails;
+    _initSpeech();
     super.initState();
   }
 
   @override
   void dispose(){
     itemController.dispose();
-    rippleControl.dispose();
     super.dispose();
   }
-
+  void _initSpeech() async {
+    speechEnabled = await speechText.initialize();
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -68,7 +70,6 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
         child: Stack(
           children: [
 
-            // List of items
             Align(
               alignment: Alignment.topCenter,
               child: ListView.builder(
@@ -109,7 +110,9 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                   }),
             ),
 
-            /* SizedBox(
+            // List of items
+            /*
+            SizedBox(
             width: width*.95,
             child: TextField(
               controller: itemController,
@@ -122,46 +125,54 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
              Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: (){
-
-                    if(itemController.text.isEmpty){
-                      importFromApp();
-                      return;
-                    }
-                    else{
-                      addItems(itemController.text);
-                    }
-                  },
-                  onLongPress: ()=> voiceButton(),
-                  child: Material(
-                    elevation: 8.0,
-                    shape: const CircleBorder(),
-                    child: Container(
-                        width: width*.14,
-                        height: width*.14,
-                        decoration: const BoxDecoration(
-                            color: mainColor,
-                            shape: BoxShape.circle
-                        ),
-                        child: addByVoice ?
-                        IconButton(
-                          onPressed: (){
-                            setState(()=> addByVoice = false);
-                          },
-                          icon: const Icon(
-                            Icons.stop,
-                            color: Colors.white,
+                padding: const EdgeInsets.only(bottom: 0.0),
+                child: AvatarGlow(
+                  glowColor: Colors.blue,
+                  endRadius: 50.0,
+                  animate: addByVoice,
+                  repeat: true,
+                  showTwoGlows: true,
+                  duration: const Duration(milliseconds: 2000),
+                  repeatPauseDuration: const Duration(milliseconds: 100),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: (){
+                      if(itemController.text.isEmpty){
+                        // importFromApp();
+                        return;
+                      }
+                      else{
+                        addItems(itemController.text);
+                      }
+                    },
+                    onLongPress: ()=> voiceButton(),
+                    child: Material(
+                      elevation: 8.0,
+                      shape: const CircleBorder(),
+                      child: Container(
+                          width: width*.14,
+                          height: width*.14,
+                          decoration: const BoxDecoration(
+                              color: mainColor,
+                              shape: BoxShape.circle
                           ),
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                        ) :
-                        const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        )
+                          child: addByVoice ?
+                          IconButton(
+                            onPressed: (){
+                              _stopListening();
+                            },
+                            icon: const Icon(
+                              Icons.stop,
+                              color: Colors.white,
+                            ),
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                          ) :
+                          const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          )
+                      ),
                     ),
                   ),
                 ),
@@ -208,9 +219,6 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
     });
   }
   void importFromApp() async {
-
-
-
     List<String> importText;
     late StreamSubscription _intentData;
 
@@ -224,15 +232,48 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
         onDone: (){_intentData.cancel();
     });
 
-
   }
 
   void voiceButton(){
     setState(()=> addByVoice = true);
-    rippleControl.forward();
+    _startListening();
   }
 
+  // Voice Functions
+  void _startListening() async {
+    await speechText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+  void _stopListening() async {
+    await speechText.stop();
+    setState(()=> addByVoice = false);
+  }
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      if (result.finalResult){
+        // Option Understood
+        if (result.confidence > .5){
+          setState(() {
+            addItems(result.recognizedWords);
+          });
+          _startListening();
+        }
+        else{
+          snackMessage("Please repeat that");
+          _startListening();
+        }
+      }
+    });
 
-
+  }
+  void snackMessage(String message){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          message,
+          style: snackStyle,
+          textAlign: TextAlign.center,
+        ))
+    );
+  }
   // TODO Add a method for updating the database...
 }

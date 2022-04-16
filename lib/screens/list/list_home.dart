@@ -292,7 +292,6 @@ class _HomeState extends State<Home> {
             ),
           ),
 
-
           Container(
             alignment: Alignment.center,
             height: 10.0,
@@ -496,6 +495,4 @@ class _HomeState extends State<Home> {
         ))
     );
   }
-
-  
 }

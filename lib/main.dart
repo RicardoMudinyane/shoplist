@@ -5,7 +5,7 @@ import 'package:shoplist/tempFile.dart';
 import 'data/routes.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
