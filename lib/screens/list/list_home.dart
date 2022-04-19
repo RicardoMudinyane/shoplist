@@ -51,13 +51,9 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.white,
         centerTitle: true,
         elevation: 0.0,
-        title: const Text(
+        title: Text(
           "My Lists",
-          style: TextStyle(
-              color: secColor,
-              fontWeight: FontWeight.w800,
-              fontSize: 15.0
-          ),
+          style: appBar,
         ),
       ),
       body: SizedBox(
@@ -411,6 +407,7 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 

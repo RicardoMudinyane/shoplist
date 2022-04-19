@@ -1,16 +1,17 @@
+import 'dart:io';
 import 'dart:async';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shoplist/const.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../../data/dataModel.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
-
-import 'list_empty.dart';
 
 class Products extends StatefulWidget {
   final ListNames listDetails;
@@ -22,11 +23,17 @@ class Products extends StatefulWidget {
 
 class _ProductsState extends State<Products>  with SingleTickerProviderStateMixin {
 
+  String imagePath = "asd";
+  late File myImagePath;
+  String finalText = ' ';
+
   SpeechToText speechText = SpeechToText();
   bool speechEnabled = false;
   String saidWords = '';
-
   bool addByVoice = false;
+
+
+
   bool keyboardIsOpen = false;
   late ListNames listDetails;
   final TextEditingController itemController = TextEditingController();
@@ -64,11 +71,7 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
         iconTheme: const IconThemeData(color: secColor),
         title: Text(
           listDetails.listName,
-          style: const TextStyle(
-              color: secColor,
-              fontWeight: FontWeight.w800,
-              fontSize: 15.0
-          ),
+          style: appBar,
         ),
       ),
       body: Container(
@@ -267,19 +270,28 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
       listDetails.products.removeAt(deleteIndex);
     });
   }
-  void importFromApp() async {
+  void importFromApp(double height, double width) async {
+    openAlertBox(height, width);
     List<String> importText;
+    int count = 0;
     late StreamSubscription _intentData;
 
     _intentData = ReceiveSharingIntent.getTextStream().listen((String text) {
       importText = text.split("\n");
       for (var singleLine in importText) {
         addItems(singleLine);
+        if(count == importText.length-1) {
+          Navigator.pop(context);
+          _intentData.cancel();
+        }
+        count++;
       }
-      },
+    },
         cancelOnError: false,
-        onDone: (){_intentData.cancel();
-    });
+        onDone: ()=> _intentData.cancel()
+
+    );
+
 
   }
 
@@ -329,6 +341,58 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
     );
   }
 
+  // Scan Functions
+  Future scanText(String path) async {
+    final inputImage = InputImage.fromFilePath(path);
+    final textDetector = GoogleMlKit.vision.textDetector();
+    final RecognisedText _reconizedText =
+    await textDetector.processImage(inputImage);
+
+    if(imagePath == "" || myImagePath == null){
+      return;
+    }
+    else{
+      for (TextBlock block in _reconizedText.blocks) {
+        for (TextLine textLine in block.lines) {
+          for (TextElement textElement in textLine.elements) {
+            finalText = finalText + " " + textElement.text;
+          }
+          if(finalText[0] ==  "0 "){
+            setState(() {
+              addItems(finalText.split("0 ")[1]);
+              finalText = "";
+            });
+          }
+          else if(finalText[0].toUpperCase() ==  "O ") {
+            setState(() {
+              addItems(finalText.split("O ")[1]);
+              finalText = "";
+            });
+          }
+          else{
+            setState(() {
+              addItems(finalText);
+              finalText = "";
+            });
+          }
+
+        }
+      }
+    }
+
+  }
+  Future<void> scanImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear
+    );
+    setState(() {
+      myImagePath = File(image!.path);
+      imagePath = image.path.toString();
+    });
+  }
+
   Widget productEmpty(double height, double width){
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -344,7 +408,7 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
               children: <TextSpan>[
                 TextSpan(
                     text: "There aren't any products added yet. You can also",
-                    style: richText
+                    style: richText.copyWith(fontSize: 14)
                 ),
                 TextSpan(
                     text: "\n Receive Share",
@@ -364,7 +428,7 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                 ),
                 TextSpan(
                     text: " \nfrom existing list elsewhere",
-                    style: richText
+                    style: richText.copyWith(fontSize: 14)
                 ),
               ],
             ),
@@ -375,9 +439,10 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-
                 InkWell(
-                  onTap:(){importFromApp();},
+                  onTap:(){
+                    importFromApp(height,width);
+                    },
                   child: Container(
                       height: width*.4,
                       width: width*.35,
@@ -400,9 +465,12 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                       )
                   ),
                 ),
-
                 InkWell(
-                  onTap: (){},
+                  onTap: (){
+                    scanImage().then((_){
+                      scanText(imagePath);
+                    });
+                  },
                   child: Container(
                       height: width*.4,
                       width: width*.35,
@@ -425,8 +493,6 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                       )
                   ),
                 )
-
-
               ],
             ),
           ),
@@ -434,6 +500,41 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
         ],
       ),
     );
+  }
+  openAlertBox(double height, double width) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)
+              ),
+              content: SizedBox(
+                width: width*.9,
+                height: width*.3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      "Go to your Notes App share text to Shoplist",
+                      textAlign: TextAlign.center,
+                      style: richText,
+                    ),
+                    Image.asset(
+                      "assets/loading.gif",
+                      height: 65.0,
+                      width: 65.0,
+                    ),
+                  ],
+                ),
+              )
+          );
+        })
+        .then((value) {
+
+    });
   }
   // TODO Add a method for updating the database...
 }

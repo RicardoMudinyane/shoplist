@@ -29,7 +29,8 @@ class ListEmpty extends StatelessWidget {
                 TextSpan(
                     text: " Add Now ",
                     style: richText.copyWith(
-                        color: mainColor
+                      color: mainColor,
+                      fontWeight: FontWeight.w800
                     )
                 ),
                 TextSpan(

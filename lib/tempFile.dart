@@ -1,94 +1,104 @@
+import 'dart:io';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+import 'package:image_picker/image_picker.dart';
+
+class readMeater extends StatefulWidget {
+  const readMeater({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _readMeaterState createState() => _readMeaterState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _initSpeech();
-  }
-
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-      _startListening();
-    });
-  }
+class _readMeaterState extends State<readMeater> {
+  String imagePath = "asd";
+  late File myImagePath;
+  String finalText = ' ';
+  bool isLoaded = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Speech Demo'),
-      ),
-      body: Center(
+      backgroundColor: Colors.black,
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
-              ),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(
+              height: 100,
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  // If listening is active show the recognized words
-                  _speechToText.isListening
-                      ? '$_lastWords'
-                  // If listening isn't active but could be tell the user
-                  // how to start it, otherwise indicate that speech
-                  // recognition is not yet ready or not supported on
-                  // the target device
-                      : _speechEnabled
-                      ? 'Tap the microphone to start listening...'
-                      : 'Speech not available',
-                  style: TextStyle(color: Colors.black),
-                ),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.teal,
+              alignment: Alignment.center,
+              child: isLoaded ?
+              Image.file(
+                myImagePath,
+                fit: BoxFit.cover,
+              ) :
+              const Text("This is image section "),
+            ),
+            Center(
+                child: TextButton(
+                    onPressed: () {
+                      getImage().then((_){
+                        getText(imagePath);
+                      });
+
+                    },
+                    child: Text(
+                      "Pick Image",
+                      style: GoogleFonts.aBeeZee(
+                        fontSize: 30,
+                      ),
+                    ))),
+            Text(
+              finalText,
+              style: GoogleFonts.aBeeZee(
+                color: Colors.white,
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-        // If not yet listening for speech start, otherwise stop
-        _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
-      ),
     );
+  }
+
+  Future getText(String path) async {
+    final inputImage = InputImage.fromFilePath(path);
+    final textDetector = GoogleMlKit.vision.textDetector();
+    final RecognisedText _reconizedText =
+    await textDetector.processImage(inputImage);
+
+    print ("Came In get text");
+    for (TextBlock block in _reconizedText.blocks) {
+      for (TextLine textLine in block.lines) {
+        for (TextElement textElement in textLine.elements) {
+
+          setState(() {
+            finalText = finalText + " " + textElement.text;
+          });
+          print ("Reading text: $finalText ");
+        }
+
+        finalText = finalText;
+      }
+    }
+  }
+  getImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.rear
+    );
+    setState(() {
+      myImagePath = File(image!.path);
+      isLoaded = true;
+      imagePath = image.path.toString();
+    });
   }
 }
