@@ -163,6 +163,14 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                         border: InputBorder.none,
                         hintText: "Type an item name",
                         hintStyle: textFieldHint,
+                        prefixIcon: Checkbox(
+                          checkColor: Colors.white,
+                          activeColor: mainColor,
+                          value: false,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                          onChanged: (bool? value) {  },
+                        ),
                       ),
                     ),
                   ),
@@ -170,7 +178,7 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
               )
             ),
 
-             Visibility(
+            Visibility(
                visible: !keyboardIsOpen,
                child: Align(
                  alignment: Alignment.bottomCenter,
@@ -188,13 +196,6 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
                        customBorder: const CircleBorder(),
                        onTap: (){
                          SystemChannels.textInput.invokeMapMethod("TextInput.show");
-                         // if(itemController.text.isEmpty){
-                         //   // importFromApp();
-                         //   return;
-                         // }
-                         // else{
-                         //   addItems(itemController.text);
-                         // }
                        },
                        onLongPress: ()=> voiceButton(),
                        child: Material(
@@ -329,7 +330,6 @@ class _ProductsState extends State<Products>  with SingleTickerProviderStateMixi
     Timer.periodic(const Duration(seconds: 4), (timer) {
       // print("After: ${result.recognizedWords}");
     });
-
   }
   void snackMessage(String message){
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

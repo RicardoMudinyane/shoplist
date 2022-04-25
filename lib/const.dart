@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -6,45 +5,45 @@ import 'package:google_fonts/google_fonts.dart';
 const mainColor = Color(0xff0170F2);
 const secColor = Color(0xff14181D);
 
-TextStyle appBar = GoogleFonts.nunito(
+TextStyle appBar = GoogleFonts.lato(
     color: secColor,
     fontWeight: FontWeight.w800,
     fontSize: 15
 );
-TextStyle suffixIcon = GoogleFonts.nunito(
+TextStyle suffixIcon = GoogleFonts.lato(
     color: Colors.white,
     fontWeight: FontWeight.w500,
     fontSize: 11.0
 );
 
-TextStyle textFieldHint = GoogleFonts.nunito(
+TextStyle textFieldHint = GoogleFonts.lato(
     color: Colors.black38,
     fontWeight: FontWeight.w500,
     fontSize: 14
 );
-TextStyle textField = GoogleFonts.nunito(
+TextStyle textField = GoogleFonts.lato(
     color: secColor,
     fontWeight: FontWeight.w500,
     fontSize: 14
 );
 
-TextStyle listTitle = GoogleFonts.nunito(
+TextStyle listTitle = GoogleFonts.lato(
     color: secColor,
     fontWeight: FontWeight.w600,
     fontSize: 15
 );
-TextStyle listSubtitle = GoogleFonts.nunito(
+TextStyle listSubtitle = GoogleFonts.lato(
     color: Colors.black38,
     fontWeight: FontWeight.w300,
     fontSize: 12
 );
 
-TextStyle snackStyle = GoogleFonts.nunito(
+TextStyle snackStyle = GoogleFonts.lato(
     color: Colors.white,
     fontWeight: FontWeight.w300,
     fontSize: 13
 );
-TextStyle richText = GoogleFonts.nunito(
+TextStyle richText = GoogleFonts.lato(
     color: secColor,
     fontWeight: FontWeight.w700,
     fontSize: 15
