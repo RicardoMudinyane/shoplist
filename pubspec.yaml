@@ -31,6 +31,9 @@ dependencies:
   lints: ^1.0.1
   intl: ^0.17.0
 
+  # Cards Styling
+  card_swiper: ^2.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

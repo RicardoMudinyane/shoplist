@@ -15,7 +15,6 @@ class ListIcons {
     this.iconNumber = 1,
   });
 }
-
 class ListNames {
 
   String listName;
@@ -38,7 +37,6 @@ class ListNames {
     required this.pinned
   });
 }
-
 class Items{
 
   String itemName;
@@ -54,7 +52,21 @@ class Items{
   });
 
 }
+class CardInfo{
 
+  String cardName;
+  String cardImage;
+  String cardNumber;
+  List<dynamic> cardInfo;
+
+  CardInfo({
+    required this.cardName,
+    required this.cardImage,
+    required this.cardNumber,
+    this.cardInfo = const [],
+  });
+
+}
 
 List<ListIcons> listIcons = [
   ListIcons(iconName: "Grocery",iconPath: "assets/lists/0.png", iconColor: const Color(0xff2596be)),
@@ -71,4 +83,14 @@ List<ListIcons> listIcons = [
   ListIcons(iconName: "Grocery",iconPath: "assets/lists/9.png", iconColor: const Color(0xfff5b662) ),
   ListIcons(iconName: "Shopping",iconPath: "assets/lists/10.png", iconColor: const Color(0xffeb423f)),
   ListIcons(iconName: "Cleaning",iconPath: "assets/lists/11.png", iconColor: const Color(0xff4398d1)),
+];
+
+List<CardInfo> cardDetails = [
+  CardInfo(cardName: "Dischem", cardImage: "https://www.dischem.co.za/media/wysiwyg/Planet_Fitness/5e6b892e4bfd7_Loyalty-416x231.jpg", cardNumber: ""),
+  CardInfo(cardName: "Edgars", cardImage: "https://www.rateweb.co.za/wp-content/uploads/2022/02/Edgars.png", cardNumber: ""),
+  CardInfo(cardName: "CNA", cardImage: "https://cdn.mappedin.com/mappedin-usercontent-prod/resized/f3e206af796067e57fd59cc9a64dbe73917ca37e.PjI1NngyNTY.jpeg", cardNumber: ""),
+  CardInfo(cardName: "Edgars Club", cardImage: "https://www.sterkinekor.com/sites/default/files/2022-03/WEBSITE_WEBSITE%20CARD%20copy.png", cardNumber: ""),
+  CardInfo(cardName: "Fun Company", cardImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWa1aBdCYT1I9zflia4jRFbm5D06fGcX9hbDMMJAziD34U5_TMv2xc0srnMxiB8R02nOE&usqp=CAU", cardNumber: ""),
+  CardInfo(cardName: "Wrewards", cardImage: "https://localmoney.co.za/wp-content/uploads/2019/02/Woolworths-WRewards.jpg", cardNumber: ""),
+  CardInfo(cardName: "Exclusive Books", cardImage: "https://cdn.hyprop.co.za/image/2021/7/20/52a78d19-8a50-429c-a4a5-a92029cf00cf/18d67064-aaef-41d9-a506-a9cb15067dcd.jpg", cardNumber: ""),
 ];

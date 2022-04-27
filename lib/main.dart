@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shoplist/screens/home/homeWidgets.dart';
 import 'package:shoplist/screens/list/list_home.dart';
 import 'package:shoplist/screens/list/products.dart';
 import 'package:shoplist/tempFile.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.white,
       ),
       debugShowCheckedModeBanner: false,
-      home: const Home(),
+      home: const HomePage(),
       /*
       onGenerateRoute: (pages) {
         late Widget page;
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
           settings: pages,
         );
       }, */
+
     );
   }
 }
