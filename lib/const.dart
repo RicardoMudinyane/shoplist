@@ -5,47 +5,47 @@ import 'package:google_fonts/google_fonts.dart';
 const mainColor = Color(0xff0170F2);
 const secColor = Color(0xff14181D);
 
-TextStyle appBar = GoogleFonts.lato(
-    color: secColor,
-    fontWeight: FontWeight.w800,
-    fontSize: 15
-);
-TextStyle suffixIcon = GoogleFonts.lato(
-    color: Colors.white,
-    fontWeight: FontWeight.w500,
-    fontSize: 11.0
-);
-
-TextStyle textFieldHint = GoogleFonts.lato(
-    color: Colors.black38,
-    fontWeight: FontWeight.w500,
-    fontSize: 14
-);
-TextStyle textField = GoogleFonts.lato(
-    color: secColor,
-    fontWeight: FontWeight.w500,
-    fontSize: 14
-);
-
-TextStyle listTitle = GoogleFonts.lato(
+TextStyle appBar = GoogleFonts.montserrat(
     color: secColor,
     fontWeight: FontWeight.w600,
     fontSize: 15
 );
-TextStyle listSubtitle = GoogleFonts.lato(
+TextStyle suffixIcon = GoogleFonts.montserrat(
+    color: Colors.white,
+    fontWeight: FontWeight.w400,
+    fontSize: 11.0
+);
+
+TextStyle textFieldHint = GoogleFonts.montserrat(
     color: Colors.black38,
-    fontWeight: FontWeight.w300,
+    fontWeight: FontWeight.w400,
+    fontSize: 14
+);
+TextStyle textField = GoogleFonts.montserrat(
+    color: secColor,
+    fontWeight: FontWeight.w400,
+    fontSize: 14
+);
+
+TextStyle listTitle = GoogleFonts.montserrat(
+    color: secColor,
+    fontWeight: FontWeight.w400,
+    fontSize: 15
+);
+TextStyle listSubtitle = GoogleFonts.montserrat(
+    color: Colors.black38,
+    fontWeight: FontWeight.w200,
     fontSize: 12
 );
 
-TextStyle snackStyle = GoogleFonts.lato(
+TextStyle snackStyle = GoogleFonts.montserrat(
     color: Colors.white,
-    fontWeight: FontWeight.w300,
+    fontWeight: FontWeight.w200,
     fontSize: 13
 );
-TextStyle richText = GoogleFonts.lato(
+TextStyle richText = GoogleFonts.montserrat(
     color: secColor,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w500,
     fontSize: 15
 );
 
